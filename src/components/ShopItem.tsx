@@ -8,6 +8,8 @@ import { Image } from "./shared";
 const Shop = styled.View`
   max-width: 400px;
   margin: 0 auto;
+  padding: 5px;
+  border: 1px solid ${(props) => props.theme.grayColor};
 `;
 
 const Touchable = styled.TouchableOpacity``;
@@ -34,16 +36,17 @@ const BigImg = styled.Image`
   background-color: black;
 `;
 
-const UserBox = styled.View`
-  position: absolute;
-  bottom: 15px;
-  right: 15px;
-  background-color: #ffffff4d;
-  padding: 4px;
-  border-radius: 999px;
-  display: flex;
+const UserBox = styled.TouchableOpacity`
+  flex-direction: row;
   align-items: center;
-  justify-content: center;
+  padding: 5px;
+  background-color: ${(props) => props.theme.hoverColor};
+`;
+
+const Username = styled.Text`
+  font-weight: bold;
+  font-size: 16px;
+  margin-left: 8px;
 `;
 
 const ImageItem = styled.TouchableOpacity`
@@ -83,25 +86,22 @@ const ShopItem: React.FC<ShopItemProps> = ({
   );
   const { width } = useWindowDimensions();
   return (
-    <Shop>
+    <Shop style={{ width: width / numColumns - 20 }}>
       <Touchable>
         <ShopMain>
           <ShopName>{name}</ShopName>
-          <BigImg
-            resizeMode="cover"
-            source={{ uri: bigImgUrl }}
-            style={{ width: width / numColumns }}
-          />
-          <UserBox>
-            <Image
-              resizeMode="cover"
-              style={{ height: 80, width: 80 }}
-              source={{ uri: user?.avatarURL || "" }}
-            />
-          </UserBox>
+          <BigImg resizeMode="cover" source={{ uri: bigImgUrl }} />
         </ShopMain>
       </Touchable>
-      {photos && photos?.length > 1 && (
+      <UserBox>
+        <Image
+          resizeMode="cover"
+          style={{ height: 40, width: 40 }}
+          source={{ uri: user?.avatarURL || "" }}
+        />
+        <Username>{user?.username}</Username>
+      </UserBox>
+      {/* {photos && photos?.length > 1 && (
         <ScrollView
           showsVerticalScrollIndicator={false}
           showsHorizontalScrollIndicator={false}
@@ -118,7 +118,8 @@ const ShopItem: React.FC<ShopItemProps> = ({
             </ImageItem>
           ))}
         </ScrollView>
-      )}
+      )} */}
+
       {categories && categories?.length > 0 && (
         <ScrollView
           showsVerticalScrollIndicator={false}

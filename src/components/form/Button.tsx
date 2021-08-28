@@ -5,7 +5,7 @@ import styled from "styled-components/native";
 export const SButton = styled.TouchableOpacity<ISButtonProp>`
   border-radius: 3px;
   background-color: ${(props) =>
-    props.error
+    props.error || props.redBgColor
       ? props.theme.errorColor
       : props.disabled
       ? props.theme.disabledBg
@@ -24,6 +24,7 @@ const SButtonText = styled.Text`
 interface ISButtonProp {
   disabled?: boolean;
   error?: boolean;
+  redBgColor?: boolean;
 }
 
 interface IButtonProp {
@@ -32,6 +33,7 @@ interface IButtonProp {
   loading?: boolean;
   disabled?: boolean;
   onPress: (event: GestureResponderEvent) => void;
+  redBgColor?: boolean;
 }
 
 const Button: React.FC<IButtonProp> = ({
@@ -40,6 +42,7 @@ const Button: React.FC<IButtonProp> = ({
   loading,
   disabled,
   onPress,
+  redBgColor,
 }) => {
   const [value, setValue] = useState<string>(text);
   useEffect(() => {
@@ -51,6 +54,7 @@ const Button: React.FC<IButtonProp> = ({
   }, [errorMsg, text]);
   return (
     <SButton
+      redBgColor={redBgColor}
       onPress={!disabled ? onPress : () => {}}
       error={Boolean(errorMsg)}
       disabled={disabled || loading}

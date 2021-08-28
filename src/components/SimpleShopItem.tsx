@@ -8,6 +8,7 @@ import { Image } from "./shared";
 const Shop = styled.View`
   max-width: 400px;
   margin: 0 auto;
+  padding: 3px;
 `;
 
 const Touchable = styled.TouchableOpacity``;

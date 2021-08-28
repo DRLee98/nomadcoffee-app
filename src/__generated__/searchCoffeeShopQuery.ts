@@ -16,7 +16,7 @@ export interface searchCoffeeShopQuery_searchCoffeeShop_shops {
   __typename: "CoffeeShop";
   id: number;
   name: string;
-  photos: (searchCoffeeShopQuery_searchCoffeeShop_shops_photos | null)[] | null;
+  photos: searchCoffeeShopQuery_searchCoffeeShop_shops_photos[] | null;
 }
 
 export interface searchCoffeeShopQuery_searchCoffeeShop {

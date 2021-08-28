@@ -2,6 +2,7 @@ import { gql, useQuery } from "@apollo/client";
 import { NavigationProp } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import styled from "styled-components/native";
+import { logout } from "../apollo";
 import Button from "../components/form/Button";
 import ScreenLayout from "../components/ScreenLayout";
 import { Image } from "../components/shared";
@@ -47,7 +48,7 @@ const Email = styled.Text`
 `;
 
 const FollowContainer = styled.View`
-  max-width: 250px;
+  max-width: 300px;
   padding: 8px 0;
   flex-direction: row;
   align-items: center;
@@ -102,6 +103,7 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
           <Name>{data?.me?.name}</Name>
           <Email>{data?.me?.email}</Email>
           <Button onPress={editProfile} text={"프로필 수정하기"} />
+          <Button redBgColor={true} onPress={logout} text={"로그아웃"} />
         </UserInfoBox>
         <FollowContainer>
           <FollowContentsBox
