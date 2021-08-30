@@ -5,7 +5,7 @@ import * as Font from "expo-font";
 import { NavigationContainer } from "@react-navigation/native";
 import TabsNavi from "./src/navigators/MainTabsNavi";
 import { ApolloProvider } from "@apollo/client";
-import { client, cache } from "./src/apollo";
+import { client, cache, tokenVar, isLoggedInVar } from "./src/apollo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { AsyncStorageWrapper, persistCache } from "apollo3-cache-persist";
 import { ThemeProvider } from "styled-components/native";
@@ -16,9 +16,15 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const onFinish = () => setLoading(false);
   const preload = async () => {
+    const token = await AsyncStorage.getItem("token");
+    if (token) {
+      isLoggedInVar(true);
+      tokenVar(token);
+    }
     await persistCache({
       cache,
       storage: new AsyncStorageWrapper(AsyncStorage),
+      serialize: undefined,
     });
     await Font.loadAsync({
       ...Ionicons.font,

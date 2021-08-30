@@ -8,7 +8,7 @@ import Logo from "../components/Logo";
 import ScreenLayout from "../components/ScreenLayout";
 import { Separator } from "../components/shared";
 import ShopItem from "../components/ShopItem";
-import { RootTabParamList } from "../navigators/MainTabsNavi";
+import { RootSharedStackParamList } from "../navigators/SharedStackNav";
 import {
   seeCoffeeShopsQuery,
   seeCoffeeShopsQuery_seeCoffeeShops,
@@ -41,7 +41,7 @@ const SEE_COFFEE_SHOPS_QUERY = gql`
 `;
 
 interface HomeProps {
-  navigation: NavigationProp<RootTabParamList, "Home">;
+  navigation: NavigationProp<RootSharedStackParamList, "Home">;
 }
 
 const Home: React.FC<HomeProps> = ({ navigation }) => {

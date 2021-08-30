@@ -10,13 +10,13 @@ import ErrorMsg from "../components/form/ErrorMsg";
 import * as MediaLibrary from "expo-media-library";
 import { Form, Input } from "../components/form/formShared";
 import Go from "../components/GoText";
-import { RootLoggedOutUserStackParamList } from "../navigators/LoggedOutUserStackNavi";
 import {
   createAccountMutation,
   createAccountMutationVariables,
 } from "../__generated__/createAccountMutation";
 import { Platform } from "react-native";
 import FormLayout from "../components/form/FormLayout";
+import { RootSharedStackParamList } from "../navigators/SharedStackNav";
 
 const CREATE_ACCOUNT_MUTATION = gql`
   mutation createAccountMutation(
@@ -86,7 +86,7 @@ interface ErrorState {
 }
 
 interface SignUpProps {
-  navigation: NavigationProp<RootLoggedOutUserStackParamList, "SignUp">;
+  navigation: NavigationProp<RootSharedStackParamList, "SignUp">;
 }
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {

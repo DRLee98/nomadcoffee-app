@@ -1,15 +1,10 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Home from "../screens/Home";
-import routes from "../routes";
 import TabIcon from "../components/nav/TabIcon";
-import UserStackNavi from "./LoggedOutUserStackNavi";
 import { useReactiveVar } from "@apollo/client";
-import { darkModeVar, isLoggedInVar } from "../apollo";
-import LoggedInUserStackNavi from "./LoggedInUserStackNavi";
-import LoggedOutUserStackNavi from "./LoggedOutUserStackNavi";
-import Search from "../screens/Search";
+import { darkModeVar } from "../apollo";
 import { darkTheme, lightTheme } from "../styles";
+import SharedStackNav from "./SharedStackNav";
 
 export type RootTabParamList = {
   Home: undefined;
@@ -20,39 +15,38 @@ export type RootTabParamList = {
 const Tab = createBottomTabNavigator<RootTabParamList>();
 
 const TabsNavi = () => {
-  const isLoggedIn = useReactiveVar(isLoggedInVar);
   const darkMode = useReactiveVar(darkModeVar);
   return (
     <Tab.Navigator
       screenOptions={{
-        headerTitleAlign: "center",
+        headerShown: false,
         tabBarShowLabel: false,
         tabBarActiveTintColor: darkMode ? darkTheme.accent : lightTheme.accent,
       }}
     >
       <Tab.Screen
         name="Home"
-        component={Home}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <TabIcon iconName={"home"} color={color} focused={focused} />
           ),
         }}
-      />
+      >
+        {() => <SharedStackNav screenName="Home" />}
+      </Tab.Screen>
       <Tab.Screen
         name="Search"
-        component={Search}
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <TabIcon iconName={"search"} color={color} focused={focused} />
           ),
         }}
-      />
+      >
+        {() => <SharedStackNav screenName="Search" />}
+      </Tab.Screen>
       <Tab.Screen
         name="Profile"
-        component={isLoggedIn ? LoggedInUserStackNavi : LoggedOutUserStackNavi}
         options={{
-          headerShown: false,
           tabBarIcon: ({ focused, color, size }) => (
             <TabIcon
               iconName={"person-circle"}
@@ -61,7 +55,9 @@ const TabsNavi = () => {
             />
           ),
         }}
-      />
+      >
+        {() => <SharedStackNav screenName="Profile" />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

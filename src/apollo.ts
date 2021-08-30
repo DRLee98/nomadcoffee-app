@@ -2,6 +2,7 @@ import { ApolloClient, InMemoryCache, makeVar } from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
 import { setContext } from "@apollo/client/link/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { offsetLimitPagination } from "@apollo/client/utilities";
 
 const TOKEN = "token";
 const DARK_MODE = "dark_mode";
@@ -17,6 +18,7 @@ export const login = async (token: string) => {
 };
 
 export const logout = async () => {
+  console.log("logout");
   await AsyncStorage.removeItem(TOKEN);
   isLoggedInVar(false);
   tokenVar("");
@@ -47,7 +49,15 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-export const cache = new InMemoryCache();
+export const cache = new InMemoryCache({
+  typePolicies: {
+    Query: {
+      fields: {
+        //seeCoffeeShops: offsetLimitPagination(),
+      },
+    },
+  },
+});
 
 export const client = new ApolloClient({
   link: authLink.concat(httpLink),

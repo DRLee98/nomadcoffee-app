@@ -10,12 +10,12 @@ import Button from "../components/form/Button";
 import ErrorMsg from "../components/form/ErrorMsg";
 import { Form, Input } from "../components/form/formShared";
 import Go from "../components/GoText";
-import { RootLoggedOutUserStackParamList } from "../navigators/LoggedOutUserStackNavi";
 import {
   loginMutation,
   loginMutationVariables,
 } from "../__generated__/loginMutation";
 import FormLayout from "../components/form/FormLayout";
+import { RootSharedStackParamList } from "../navigators/SharedStackNav";
 
 const LOGIN_MUTATION = gql`
   mutation loginMutation($username: String!, $password: String!) {
@@ -41,8 +41,8 @@ interface ErrorState {
 }
 
 interface LoginProps {
-  navigation: NavigationProp<RootLoggedOutUserStackParamList, "Login">;
-  route: RouteProp<RootLoggedOutUserStackParamList, "Login">;
+  navigation: NavigationProp<RootSharedStackParamList, "Login">;
+  route: RouteProp<RootSharedStackParamList, "Login">;
 }
 
 const Login: React.FC<LoginProps> = ({ navigation, route }) => {

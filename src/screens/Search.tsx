@@ -3,13 +3,12 @@ import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
 import { FlatList, useWindowDimensions } from "react-native";
 import styled from "styled-components/native";
 import DismissKeyboard from "../components/DismissKeyboard";
 import ScreenLayout from "../components/ScreenLayout";
 import SimpleShopItem from "../components/SimpleShopItem";
-import { RootTabParamList } from "../navigators/MainTabsNavi";
+import { RootSharedStackParamList } from "../navigators/SharedStackNav";
 import {
   searchCoffeeShopQuery,
   searchCoffeeShopQueryVariables,
@@ -41,12 +40,8 @@ const SearchInput = styled.TextInput`
   border-radius: 10px;
 `;
 
-interface SearchFormProps {
-  word: string;
-}
-
 interface SearchProps {
-  navigation: NavigationProp<RootTabParamList, "Search">;
+  navigation: NavigationProp<RootSharedStackParamList, "Search">;
 }
 
 const Search: React.FC<SearchProps> = ({ navigation }) => {

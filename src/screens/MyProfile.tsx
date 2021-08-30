@@ -71,11 +71,11 @@ const FollowContentsBox = styled.TouchableOpacity`
   border-color: ${(props) => props.theme.accent};
 `;
 
-interface ProfileProps {
+interface MyProfileProps {
   navigation: NavigationProp<RootSharedStackParamList, "Profile">;
 }
 
-const Profile: React.FC<ProfileProps> = ({ navigation }) => {
+const MyProfile: React.FC<MyProfileProps> = ({ navigation }) => {
   const { data, loading } = useQuery<meQuery>(ME_QUERY);
 
   useEffect(() => {
@@ -102,8 +102,8 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
           <Username>{data?.me?.username}</Username>
           <Name>{data?.me?.name}</Name>
           <Email>{data?.me?.email}</Email>
-          {/* <Button onPress={editProfile} text={"프로필 수정하기"} />
-          <Button redBgColor={true} onPress={logout} text={"로그아웃"} /> */}
+          <Button onPress={editProfile} text={"프로필 수정하기"} />
+          <Button redBgColor={true} onPress={logout} text={"로그아웃"} />
         </UserInfoBox>
         <FollowContainer>
           <FollowContentsBox
@@ -122,4 +122,4 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
   );
 };
 
-export default Profile;
+export default MyProfile;
