@@ -16,19 +16,21 @@ export const lightTheme: DefaultTheme = {
   hoverColor: "#41f7d31a",
   disabledBg: "#94949466",
   errorColor: "#ff6565",
-  wrapperBg: "white",
+  wrapperBg: "#f2f2f2",
   darkModeBtn: "#673ab7",
+  placeholderTextColor: "#909090cc",
   ...commonTheme,
 };
 
 export const darkTheme: DefaultTheme = {
   fontColor: "lightgray",
   bgColor: "#2c2c2c",
-  accent: "#673ab7",
+  accent: "#8c64d4",
   hoverColor: "#673ab74d",
   disabledBg: "#94949466",
   errorColor: "#ff6565",
-  wrapperBg: "#191919a1",
+  wrapperBg: "#191919cc",
   darkModeBtn: "#ff9800",
+  placeholderTextColor: "#d3d3d3cc",
   ...commonTheme,
 };

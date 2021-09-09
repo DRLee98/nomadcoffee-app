@@ -2,29 +2,38 @@ import React, { useEffect, useState } from "react";
 import { ActivityIndicator, GestureResponderEvent } from "react-native";
 import styled from "styled-components/native";
 
-export const SButton = styled.TouchableOpacity<ISButtonProp>`
+export const SButton = styled.TouchableOpacity<SButtonProp>`
   border-radius: 3px;
   background-color: ${(props) =>
     props.error || props.redBgColor
       ? props.theme.errorColor
+      : props.basicBgColor
+      ? props.theme.bgColor
       : props.disabled
       ? props.theme.disabledBg
       : props.theme.accent};
   padding: 10px 0px;
   width: 100%;
+  ${(props) =>
+    props.basicBgColor ? `border: 1px solid ${props.theme.fontColor}` : ""};
 `;
 
-const SButtonText = styled.Text`
+const SButtonText = styled.Text<SButtonTextProp>`
   width: 100%;
   font-weight: 800;
   text-align: center;
-  color: white;
+  color: ${(props) => (props.basicBgColor ? props.theme.fontColor : "white")};
 `;
 
-interface ISButtonProp {
+interface SButtonProp {
   disabled?: boolean;
   error?: boolean;
   redBgColor?: boolean;
+  basicBgColor?: boolean;
+}
+
+interface SButtonTextProp {
+  basicBgColor?: boolean;
 }
 
 interface IButtonProp {
@@ -34,6 +43,7 @@ interface IButtonProp {
   disabled?: boolean;
   onPress: (event: GestureResponderEvent) => void;
   redBgColor?: boolean;
+  basicBgColor?: boolean;
 }
 
 const Button: React.FC<IButtonProp> = ({
@@ -43,6 +53,7 @@ const Button: React.FC<IButtonProp> = ({
   disabled,
   onPress,
   redBgColor,
+  basicBgColor,
 }) => {
   const [value, setValue] = useState<string>(text);
   useEffect(() => {
@@ -55,6 +66,7 @@ const Button: React.FC<IButtonProp> = ({
   return (
     <SButton
       redBgColor={redBgColor}
+      basicBgColor={basicBgColor}
       onPress={!disabled ? onPress : () => {}}
       error={Boolean(errorMsg)}
       disabled={disabled || loading}
@@ -62,7 +74,7 @@ const Button: React.FC<IButtonProp> = ({
       {loading ? (
         <ActivityIndicator color="white" />
       ) : (
-        <SButtonText>{value}</SButtonText>
+        <SButtonText basicBgColor={basicBgColor}>{value}</SButtonText>
       )}
     </SButton>
   );

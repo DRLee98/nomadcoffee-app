@@ -1,17 +1,19 @@
+import { NavigationProp, useNavigation } from "@react-navigation/core";
 import React from "react";
-import { useState } from "react";
-import { ScrollView, useWindowDimensions } from "react-native";
+import { useWindowDimensions } from "react-native";
+import FastImage from "react-native-fast-image";
 import styled from "styled-components/native";
+import { RootSharedStackParamList } from "../navigators/SharedStackNav";
 import { searchCoffeeShopQuery_searchCoffeeShop_shops } from "../__generated__/searchCoffeeShopQuery";
 import { Image } from "./shared";
 
 const Shop = styled.View`
   max-width: 400px;
-  margin: 0 auto;
-  padding: 3px;
 `;
 
-const Touchable = styled.TouchableOpacity``;
+const Touchable = styled.TouchableOpacity`
+  border: 1px solid ${(props) => props.theme.bgColor};
+`;
 
 const ShopMain = styled.View`
   position: relative;
@@ -46,10 +48,16 @@ const SimpleShopItem: React.FC<SimpleShopItemProps> = ({
   photos,
   numColumns,
 }) => {
+  const navigation = useNavigation<NavigationProp<RootSharedStackParamList>>();
   const { width } = useWindowDimensions();
+
+  const goDetail = () => {
+    navigation.navigate("Detail", { id });
+  };
+
   return (
     <Shop>
-      <Touchable>
+      <Touchable onPress={goDetail}>
         <ShopMain>
           <ShopName>{name}</ShopName>
           <BigImg

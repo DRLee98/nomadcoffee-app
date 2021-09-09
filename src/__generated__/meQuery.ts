@@ -14,6 +14,7 @@ export interface meQuery_me {
   email: string;
   name: string;
   avatarURL: string | null;
+  location: string | null;
   totalFollowing: number;
   totalFollowers: number;
 }

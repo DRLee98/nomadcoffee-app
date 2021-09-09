@@ -5,7 +5,6 @@ export const Form = styled.View`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  margin-bottom: 15px;
 `;
 
 interface IInputProp {

@@ -10,6 +10,7 @@ declare module "styled-components/native" {
     errorColor: string;
     wrapperBg: string;
     darkModeBtn: string;
+    placeholderTextColor: string;
   }
 }
 

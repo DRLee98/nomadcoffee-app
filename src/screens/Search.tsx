@@ -1,19 +1,22 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useLazyQuery, useReactiveVar } from "@apollo/client";
 import { NavigationProp } from "@react-navigation/native";
 import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import { FlatList, useWindowDimensions } from "react-native";
 import styled from "styled-components/native";
+import { darkModeVar } from "../apollo";
 import DismissKeyboard from "../components/DismissKeyboard";
 import ScreenLayout from "../components/ScreenLayout";
 import SimpleShopItem from "../components/SimpleShopItem";
 import { RootSharedStackParamList } from "../navigators/SharedStackNav";
+import { darkTheme, lightTheme } from "../styles";
 import {
   searchCoffeeShopQuery,
   searchCoffeeShopQueryVariables,
   searchCoffeeShopQuery_searchCoffeeShop_shops,
 } from "../__generated__/searchCoffeeShopQuery";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const SEARCH_COFFEE_SHOP_QUERY = gql`
   query searchCoffeeShopQuery($word: String!, $page: Int) {
@@ -32,12 +35,25 @@ const SEARCH_COFFEE_SHOP_QUERY = gql`
 `;
 
 const SearchInput = styled.TextInput`
-  width: 70%;
-  min-width: 300px;
+  width: 80%;
+  min-width: 200px;
   max-width: 700px;
-  background-color: #f2f2f2;
+  background-color: ${(props) => props.theme.wrapperBg};
+  color: ${(props) => props.theme.fontColor};
   padding: 8px;
   border-radius: 10px;
+`;
+
+const IconBox = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+`;
+
+const Icon = styled(Ionicons)`
+  color: ${(props) => props.theme.grayColor};
+  opacity: 0.5;
 `;
 
 interface SearchProps {
@@ -45,6 +61,7 @@ interface SearchProps {
 }
 
 const Search: React.FC<SearchProps> = ({ navigation }) => {
+  const darkMode = useReactiveVar(darkModeVar);
   const { width } = useWindowDimensions();
   const numColumns = width > 900 ? 4 : 2;
   const [shops, setShops] = useState<
@@ -102,6 +119,11 @@ const Search: React.FC<SearchProps> = ({ navigation }) => {
         <SearchInput
           onChangeText={changeText}
           placeholder="검색어를 입력해주세요"
+          placeholderTextColor={
+            darkMode
+              ? darkTheme.placeholderTextColor
+              : lightTheme.placeholderTextColor
+          }
         />
       ),
       headerTitleStyle: {
@@ -119,21 +141,28 @@ const Search: React.FC<SearchProps> = ({ navigation }) => {
   return (
     <ScreenLayout loading={loading}>
       <DismissKeyboard>
-        <FlatList
-          numColumns={numColumns}
-          style={{
-            marginTop: 20,
-            marginBottom: 20,
-          }}
-          refreshing={refreshing}
-          onRefresh={refresh}
-          onEndReachedThreshold={0}
-          onEndReached={nextPage}
-          showsVerticalScrollIndicator={false}
-          renderItem={renderItem}
-          data={shops}
-          keyExtractor={(shop) => Date.now().toString() + shop?.id}
-        />
+        {shops.length > 0 ? (
+          <FlatList
+            numColumns={numColumns}
+            style={{
+              width: "100%",
+              marginTop: 20,
+              marginBottom: 20,
+            }}
+            refreshing={refreshing}
+            onRefresh={refresh}
+            onEndReachedThreshold={0}
+            onEndReached={nextPage}
+            showsVerticalScrollIndicator={false}
+            renderItem={renderItem}
+            data={shops}
+            keyExtractor={(shop) => shop?.id + ""}
+          />
+        ) : (
+          <IconBox>
+            <Icon name="search" size={100} />
+          </IconBox>
+        )}
       </DismissKeyboard>
     </ScreenLayout>
   );

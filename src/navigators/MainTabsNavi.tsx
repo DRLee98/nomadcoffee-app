@@ -7,9 +7,9 @@ import { darkTheme, lightTheme } from "../styles";
 import SharedStackNav from "./SharedStackNav";
 
 export type RootTabParamList = {
-  Home: undefined;
-  Search: undefined;
-  Profile: undefined;
+  TabHome: undefined;
+  TabSearch: undefined;
+  TabProfile: undefined;
 };
 
 const Tab = createBottomTabNavigator<RootTabParamList>();
@@ -22,10 +22,14 @@ const TabsNavi = () => {
         headerShown: false,
         tabBarShowLabel: false,
         tabBarActiveTintColor: darkMode ? darkTheme.accent : lightTheme.accent,
+        tabBarStyle: {
+          borderTopColor: darkMode ? darkTheme.bgColor : lightTheme.bgColor,
+          backgroundColor: darkMode ? darkTheme.bgColor : lightTheme.bgColor,
+        },
       }}
     >
       <Tab.Screen
-        name="Home"
+        name="TabHome"
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <TabIcon iconName={"home"} color={color} focused={focused} />
@@ -35,7 +39,7 @@ const TabsNavi = () => {
         {() => <SharedStackNav screenName="Home" />}
       </Tab.Screen>
       <Tab.Screen
-        name="Search"
+        name="TabSearch"
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <TabIcon iconName={"search"} color={color} focused={focused} />
@@ -45,7 +49,7 @@ const TabsNavi = () => {
         {() => <SharedStackNav screenName="Search" />}
       </Tab.Screen>
       <Tab.Screen
-        name="Profile"
+        name="TabProfile"
         options={{
           tabBarIcon: ({ focused, color, size }) => (
             <TabIcon

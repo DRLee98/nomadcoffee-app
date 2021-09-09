@@ -1,5 +1,24 @@
+import { useReactiveVar } from "@apollo/client";
 import React from "react";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator } from "react-native";
+import styled from "styled-components/native";
+import { darkModeVar } from "../apollo";
+
+const Background = styled.View`
+  flex: 1;
+  width: 100%;
+  background-color: ${(props) => props.theme.wrapperBg};
+`;
+
+const Container = styled.View`
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 900;
+  margin: auto;
+  background-color: ${(props) => props.theme.wrapperBg};
+`;
 
 interface ScreenLayoutProps {
   loading: Boolean;
@@ -7,18 +26,16 @@ interface ScreenLayoutProps {
 }
 
 export default function ScreenLayout({ loading, children }: ScreenLayoutProps) {
+  const darkMode = useReactiveVar(darkModeVar);
   return (
-    <View
-      style={{
-        flex: 1,
-        alignItems: "center",
-        justifyContent: "center",
-        width: "100%",
-        maxWidth: 900,
-        margin: "auto",
-      }}
-    >
-      {loading ? <ActivityIndicator color="gray" /> : children}
-    </View>
+    <Background>
+      <Container>
+        {loading ? (
+          <ActivityIndicator color={darkMode ? "white" : "gray"} />
+        ) : (
+          children
+        )}
+      </Container>
+    </Background>
   );
 }

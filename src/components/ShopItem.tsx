@@ -1,9 +1,15 @@
 import React from "react";
 import { useState } from "react";
 import { ScrollView, useWindowDimensions } from "react-native";
+import FastImage from "react-native-fast-image";
 import styled from "styled-components/native";
-import { seeCoffeeShopsQuery_seeCoffeeShops_shops } from "../__generated__/seeCoffeeShopsQuery";
+import { seeCoffeeShopsQuery_seeCoffeeShops } from "../__generated__/seeCoffeeShopsQuery";
 import { Image } from "./shared";
+import Ionicons from "react-native-vector-icons/Ionicons";
+import { NavigationProp, useNavigation } from "@react-navigation/native";
+import { RootSharedStackParamList } from "../navigators/SharedStackNav";
+import useMe from "../hooks/useMe";
+import CategoryItem from "./CategoryItem";
 
 const Shop = styled.View`
   max-width: 400px;
@@ -47,6 +53,7 @@ const Username = styled.Text`
   font-weight: bold;
   font-size: 16px;
   margin-left: 8px;
+  color: ${(props) => props.theme.fontColor};
 `;
 
 const ImageItem = styled.TouchableOpacity`
@@ -60,16 +67,32 @@ const SmallImage = styled.Image`
   height: 100%;
 `;
 
-const CategoryItem = styled.Text`
-  font-weight: bold;
-  border-radius: 10px;
-  border: 1px solid ${(props) => props.theme.accent};
-  color: ${(props) => props.theme.accent};
-  padding: 2px 15px;
-  margin-right: 5px;
+const Box = styled.View`
+  flex-direction: row;
+  align-items: center;
 `;
 
-interface ShopItemProps extends seeCoffeeShopsQuery_seeCoffeeShops_shops {
+const CountText = styled.Text`
+  margin-left: 2px;
+  color: ${(props) => props.theme.fontColor};
+`;
+
+const IconBox = styled.View`
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background-color: #ffffff4d;
+  border-radius: 15px;
+  z-index: 5;
+`;
+
+const Icon = styled(Ionicons)``;
+
+interface ShopItemProps extends seeCoffeeShopsQuery_seeCoffeeShops {
   numColumns: number;
 }
 
@@ -79,21 +102,57 @@ const ShopItem: React.FC<ShopItemProps> = ({
   photos,
   user,
   categories,
+  isLiked,
+  totalLikes,
+  totalComments,
   numColumns,
 }) => {
+  const navigation = useNavigation<NavigationProp<RootSharedStackParamList>>();
+  const { data: meData } = useMe();
   const [bigImgUrl, setBigImgUrl] = useState<string | undefined>(
     photos ? photos[0]?.url : "",
   );
   const { width } = useWindowDimensions();
+
+  const goProfile = () => {
+    if (user.isMe) {
+      navigation.navigate("MyProfile");
+    } else {
+      navigation.navigate("Profile", { id: user.id });
+    }
+  };
+
+  const goDetail = () => {
+    navigation.navigate("Detail", { id });
+  };
+
   return (
     <Shop style={{ width: width / numColumns - 20 }}>
-      <Touchable>
+      <Touchable onPress={goDetail}>
         <ShopMain>
           <ShopName>{name}</ShopName>
-          <BigImg resizeMode="cover" source={{ uri: bigImgUrl }} />
+          <BigImg resizeMode="cover" source={{ uri: bigImgUrl || "" }} />
+          <IconBox style={{ marginTop: 5 }}>
+            <Box style={{ marginRight: 8 }}>
+              <Icon
+                name={isLiked ? "heart" : "heart-outline"}
+                color={isLiked ? "red" : "black"}
+                size={22}
+              />
+              <CountText>{totalLikes}</CountText>
+            </Box>
+            <Box>
+              <Icon
+                name={"chatbubble-ellipses-outline"}
+                color={"black"}
+                size={22}
+              />
+              <CountText>{totalComments}</CountText>
+            </Box>
+          </IconBox>
         </ShopMain>
       </Touchable>
-      <UserBox>
+      <UserBox onPress={goProfile}>
         <Image
           resizeMode="cover"
           style={{ height: 40, width: 40 }}
@@ -101,25 +160,6 @@ const ShopItem: React.FC<ShopItemProps> = ({
         />
         <Username>{user?.username}</Username>
       </UserBox>
-      {/* {photos && photos?.length > 1 && (
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          showsHorizontalScrollIndicator={false}
-          horizontal={true}
-          contentContainerStyle={{ flexDirection: "row" }}
-          style={{ marginTop: 5 }}
-        >
-          {photos?.map((photo) => (
-            <ImageItem
-              key={`photo${photo?.url}`}
-              onPress={() => setBigImgUrl(photo?.url)}
-            >
-              <SmallImage source={{ uri: photo?.url }} resizeMode="cover" />
-            </ImageItem>
-          ))}
-        </ScrollView>
-      )} */}
-
       {categories && categories?.length > 0 && (
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -129,9 +169,10 @@ const ShopItem: React.FC<ShopItemProps> = ({
           style={{ marginTop: 5 }}
         >
           {categories?.map((category) => (
-            <CategoryItem key={`category${category?.name}_${id}`}>
-              {category?.name}
-            </CategoryItem>
+            <CategoryItem
+              {...category}
+              key={`category${category?.name}_${id}`}
+            />
           ))}
         </ScrollView>
       )}

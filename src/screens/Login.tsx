@@ -1,11 +1,11 @@
-import { useMutation } from "@apollo/client";
+import { useMutation, useReactiveVar } from "@apollo/client";
 import { NavigationProp, RouteProp } from "@react-navigation/native";
 import gql from "graphql-tag";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { TextInput } from "react-native";
 import styled from "styled-components/native";
-import { login } from "../apollo";
+import { darkModeVar, login } from "../apollo";
 import Button from "../components/form/Button";
 import ErrorMsg from "../components/form/ErrorMsg";
 import { Form, Input } from "../components/form/formShared";
@@ -16,6 +16,7 @@ import {
 } from "../__generated__/loginMutation";
 import FormLayout from "../components/form/FormLayout";
 import { RootSharedStackParamList } from "../navigators/SharedStackNav";
+import { darkTheme, lightTheme } from "../styles";
 
 const LOGIN_MUTATION = gql`
   mutation loginMutation($username: String!, $password: String!) {
@@ -46,6 +47,7 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ navigation, route }) => {
+  const darkMode = useReactiveVar(darkModeVar);
   const [error, setError] = useState<ErrorState>();
   const { register, handleSubmit, watch, setValue } = useForm<LoginFormProps>({
     defaultValues: {
@@ -108,9 +110,9 @@ const Login: React.FC<LoginProps> = ({ navigation, route }) => {
     setValue(key, value);
   };
 
-  const passwordRef = useRef<TextInput>();
+  const passwordRef = React.useRef<TextInput | null>(null);
 
-  const onNext = (nextOne: React.MutableRefObject<TextInput | undefined>) => {
+  const onNext = (nextOne: React.MutableRefObject<TextInput | null>) => {
     nextOne?.current?.focus();
   };
 
@@ -122,20 +124,26 @@ const Login: React.FC<LoginProps> = ({ navigation, route }) => {
             value={watch("username") || ""}
             onChangeText={(text) => onChangeText("username", text)}
             placeholder="사용자 이름"
+            placeholderTextColor={
+              darkMode
+                ? darkTheme.placeholderTextColor
+                : lightTheme.placeholderTextColor
+            }
             returnKeyType="next"
             error={error?.key === "username"}
             onSubmitEditing={() => onNext(passwordRef)}
           />
           <ErrorMsg msg={error?.key === "username" ? error.message : ""} />
           <Input
-            ref={(ref) => {
-              // if (passwordRef && ref) {
-              //   passwordRef.current = ref;
-              // }
-            }}
+            ref={(ref) => (passwordRef.current = ref)}
             value={watch("password") || ""}
             onChangeText={(text) => onChangeText("password", text)}
             placeholder="비밀번호"
+            placeholderTextColor={
+              darkMode
+                ? darkTheme.placeholderTextColor
+                : lightTheme.placeholderTextColor
+            }
             secureTextEntry
             returnKeyType="done"
             error={error?.key === "password"}
@@ -149,8 +157,8 @@ const Login: React.FC<LoginProps> = ({ navigation, route }) => {
             loading={loading}
             disabled={!watch("username") || !watch("password")}
           />
+          <Go onPress={goSignUp} text={"회원가입 하러가기 →"} />
         </Form>
-        <Go onPress={goSignUp} text={"회원가입 하러가기 →"} />
       </Box>
     </FormLayout>
   );

@@ -1,9 +1,11 @@
-import { useQuery } from "@apollo/client";
+import { useQuery, useReactiveVar } from "@apollo/client";
 import { NavigationProp } from "@react-navigation/native";
 import gql from "graphql-tag";
 import React, { useRef, useState } from "react";
+import styled from "styled-components/native";
 import { useEffect } from "react";
 import { FlatList, Text, useWindowDimensions } from "react-native";
+import Ionicons from "react-native-vector-icons/Ionicons";
 import Logo from "../components/Logo";
 import ScreenLayout from "../components/ScreenLayout";
 import { Separator } from "../components/shared";
@@ -12,32 +14,47 @@ import { RootSharedStackParamList } from "../navigators/SharedStackNav";
 import {
   seeCoffeeShopsQuery,
   seeCoffeeShopsQuery_seeCoffeeShops,
-  seeCoffeeShopsQuery_seeCoffeeShops_shops,
 } from "../__generated__/seeCoffeeShopsQuery";
+import DarkModeBtn from "../components/DarkMode";
+import { isLoggedInVar } from "../apollo";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { addArray } from "../app/store";
 
 const SEE_COFFEE_SHOPS_QUERY = gql`
   query seeCoffeeShopsQuery($page: Int) {
     seeCoffeeShops(page: $page) {
-      totalPage
-      totalCount
-      shops {
+      id
+      name
+      totalLikes
+      totalComments
+      isLiked
+      user {
         id
+        username
+        avatarURL
+        isMe
+      }
+      photos {
+        url
+      }
+      categories {
         name
-        user {
-          id
-          username
-          avatarURL
-        }
-        photos {
-          url
-        }
-        categories {
-          name
-          slug
-        }
+        slug
       }
     }
   }
+`;
+
+const Box = styled.View`
+  flex-direction: row;
+`;
+
+const TouchBox = styled.TouchableOpacity`
+  margin-right: 10px;
+`;
+
+const Icon = styled(Ionicons)`
+  color: ${(props) => props.theme.accent};
 `;
 
 interface HomeProps {
@@ -45,12 +62,11 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ navigation }) => {
+  const isLoggedIn = useReactiveVar(isLoggedInVar);
   const { width } = useWindowDimensions();
   const numColumns = width > 900 ? 2 : 1;
   const [page, setPage] = useState<number>(1);
-  const [shops, setShops] = useState<
-    seeCoffeeShopsQuery_seeCoffeeShops_shops[] | []
-  >([]);
+  const [loadMore, setLoadMore] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const flatListRef =
     useRef<FlatList<seeCoffeeShopsQuery_seeCoffeeShops | null> | null>();
@@ -60,45 +76,47 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
     });
   const refresh = async () => {
     setRefreshing(true);
+    await setPage(1);
     await refetch();
     setRefreshing(false);
   };
   const nextPage = () => {
-    console.log("next");
-    const totalPage = data?.seeCoffeeShops?.totalPage;
-    if (totalPage && totalPage > page) {
+    if (!loading && loadMore) {
+      console.log("next");
       fetchMore({
         variables: {
           page: page + 1,
         },
-      }).then((fetchData) => {
-        const loadShops = fetchData.data.seeCoffeeShops?.shops;
-        if (loadShops) {
-          setShops((prev) => [...prev, ...loadShops]);
-        }
       });
-      setPage((prev) => prev + 1);
     }
+    setPage((prev) => prev + 1);
   };
 
   const renderItem = ({
     item,
   }: {
-    item: seeCoffeeShopsQuery_seeCoffeeShops_shops;
+    item: seeCoffeeShopsQuery_seeCoffeeShops;
   }) => {
     return <ShopItem {...item} numColumns={numColumns} />;
   };
 
-  useEffect(() => {
-    console.log("call");
-    if (data?.seeCoffeeShops?.shops && data.seeCoffeeShops.shops !== null) {
-      setShops(data.seeCoffeeShops.shops);
-    }
-  }, [called]);
+  const goAddShop = () => {
+    navigation.navigate("AddShop");
+  };
 
   useEffect(() => {
     navigation.setOptions({
       headerTitle: Logo,
+      headerRight: () => (
+        <Box>
+          {isLoggedIn && (
+            <TouchBox onPress={goAddShop}>
+              <Icon name={"add-circle"} size={22} />
+            </TouchBox>
+          )}
+          <DarkModeBtn />
+        </Box>
+      ),
     });
   }, []);
 
@@ -118,8 +136,8 @@ const Home: React.FC<HomeProps> = ({ navigation }) => {
         onEndReached={nextPage}
         showsVerticalScrollIndicator={false}
         renderItem={renderItem}
-        data={shops}
-        keyExtractor={(shop) => Date.now().toString() + shop?.id}
+        data={data?.seeCoffeeShops}
+        keyExtractor={(shop) => shop?.id + ""}
       />
     </ScreenLayout>
   );

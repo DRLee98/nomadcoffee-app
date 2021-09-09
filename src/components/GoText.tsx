@@ -3,7 +3,7 @@ import { GestureResponderEvent } from "react-native";
 import styled from "styled-components/native";
 
 const GoBox = styled.TouchableOpacity`
-
+  margin-top: 15px;
 `;
 
 const GoText = styled.Text`

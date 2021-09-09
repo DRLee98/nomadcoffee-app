@@ -1,10 +1,12 @@
 import { ApolloClient, InMemoryCache, makeVar } from "@apollo/client";
 import { createUploadLink } from "apollo-upload-client";
+import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { offsetLimitPagination } from "@apollo/client/utilities";
+import { seeCoffeeShopsQuery_seeCoffeeShops } from "./__generated__/seeCoffeeShopsQuery";
 
-const TOKEN = "token";
+export const TOKEN = "token";
 const DARK_MODE = "dark_mode";
 
 export const isLoggedInVar = makeVar(false);
@@ -18,7 +20,6 @@ export const login = async (token: string) => {
 };
 
 export const logout = async () => {
-  console.log("logout");
   await AsyncStorage.removeItem(TOKEN);
   isLoggedInVar(false);
   tokenVar("");
@@ -34,11 +35,6 @@ export const toggleDarkMode = async () => {
   }
 };
 
-const httpLink = createUploadLink({
-  uri: "https://nomad-coffee-backend-0126.herokuapp.com/graphql",
-  // uri: "http://localhost:4000/graphql",
-});
-
 const authLink = setContext((_, { headers }) => {
   const token = tokenVar();
   return {
@@ -49,17 +45,41 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
+const uploadHttpLink = createUploadLink({
+  uri: "https://nomad-coffee-backend-0126.herokuapp.com/graphql",
+  // uri: "http://localhost:4000/graphql",
+});
+
+const onErrorLink = onError(({ graphQLErrors, networkError }) => {
+  if (graphQLErrors) {
+    console.log(`GraphQL Error`, graphQLErrors);
+  }
+  if (networkError) {
+    console.log("Network Error", networkError);
+  }
+});
+
+const httpLinks = authLink.concat(onErrorLink).concat(uploadHttpLink);
+
 export const cache = new InMemoryCache({
   typePolicies: {
     Query: {
       fields: {
-        //seeCoffeeShops: offsetLimitPagination(),
+        seeCoffeeShops: {
+          keyArgs: false,
+          merge(existing = [], incoming = []) {
+            console.log(existing, incoming);
+            if (Array.isArray(existing) && Array.isArray(incoming)) {
+              return [...existing, ...incoming];
+            }
+          },
+        },
       },
     },
   },
 });
 
 export const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: httpLinks,
   cache,
 });

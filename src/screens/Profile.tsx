@@ -1,17 +1,17 @@
-import { gql, useQuery } from "@apollo/client";
-import { NavigationProp } from "@react-navigation/native";
+import { gql, useQuery, useReactiveVar } from "@apollo/client";
+import { NavigationProp, RouteProp } from "@react-navigation/native";
 import React, { useEffect } from "react";
 import styled from "styled-components/native";
-import { logout } from "../apollo";
-import Button from "../components/form/Button";
+import { isLoggedInVar } from "../apollo";
+import FollowButton from "../components/FollowButton";
 import ScreenLayout from "../components/ScreenLayout";
 import { Image } from "../components/shared";
 import { RootSharedStackParamList } from "../navigators/SharedStackNav";
-import { meQuery } from "../__generated__/meQuery";
+import { seeProfileQuery } from "../__generated__/seeProfileQuery";
 
-const ME_QUERY = gql`
-  query meQuery {
-    me {
+const SEE_PROFILE_QUERY = gql`
+  query seeProfileQuery($id: Int) {
+    seeProfile(id: $id) {
       id
       username
       email
@@ -19,6 +19,7 @@ const ME_QUERY = gql`
       avatarURL
       totalFollowing
       totalFollowers
+      isFollowing
     }
   }
 `;
@@ -60,10 +61,12 @@ const FollowContainer = styled.View`
 const FollowText = styled.Text`
   text-align: center;
   font-weight: bold;
+  color: ${(props) => props.theme.fontColor};
 `;
 
 const FollowValue = styled.Text`
   text-align: center;
+  color: ${(props) => props.theme.fontColor};
 `;
 
 const FollowContentsBox = styled.TouchableOpacity`
@@ -73,21 +76,29 @@ const FollowContentsBox = styled.TouchableOpacity`
 
 interface ProfileProps {
   navigation: NavigationProp<RootSharedStackParamList, "Profile">;
+  route: RouteProp<RootSharedStackParamList, "Profile">;
 }
 
-const Profile: React.FC<ProfileProps> = ({ navigation }) => {
-  const { data, loading } = useQuery<meQuery>(ME_QUERY);
+const Profile: React.FC<ProfileProps> = ({ navigation, route }) => {
+  const hasToken = useReactiveVar(isLoggedInVar);
+  const { data, loading } = useQuery<seeProfileQuery>(SEE_PROFILE_QUERY, {
+    variables: {
+      id: route.params.id,
+    },
+  });
 
   useEffect(() => {
-    if (data?.me) {
+    if (data?.seeProfile) {
       navigation.setOptions({
-        headerTitle: `${data.me.name}의 프로필`,
+        headerTitle: `${data.seeProfile.name}의 프로필`,
       });
     }
   }, [data]);
 
-  const editProfile = () => {
-    console.log("press");
+  const goFollow = () => {
+    if (data?.seeProfile?.id) {
+      navigation.navigate("Follow", { id: data.seeProfile.id });
+    }
   };
 
   return (
@@ -96,25 +107,30 @@ const Profile: React.FC<ProfileProps> = ({ navigation }) => {
         <Image
           resizeMode="cover"
           style={{ height: 150, width: 150, alignSelf: "center" }}
-          source={{ uri: data?.me?.avatarURL || "" }}
+          source={{ uri: data?.seeProfile?.avatarURL || "" }}
         />
         <UserInfoBox>
-          <Username>{data?.me?.username}</Username>
-          <Name>{data?.me?.name}</Name>
-          <Email>{data?.me?.email}</Email>
-          {/* <Button onPress={editProfile} text={"프로필 수정하기"} />
-          <Button redBgColor={true} onPress={logout} text={"로그아웃"} /> */}
+          <Username>{data?.seeProfile?.username}</Username>
+          <Name>{data?.seeProfile?.name}</Name>
+          <Email>{data?.seeProfile?.email}</Email>
+          {hasToken && (
+            <FollowButton
+              id={route.params.id}
+              isFollowing={data?.seeProfile?.isFollowing}
+            />
+          )}
         </UserInfoBox>
         <FollowContainer>
           <FollowContentsBox
+            onPress={goFollow}
             style={{ borderRightWidth: 1, borderStyle: "solid" }}
           >
             <FollowText>팔로워</FollowText>
-            <FollowValue>{data?.me?.totalFollowers}</FollowValue>
+            <FollowValue>{data?.seeProfile?.totalFollowers}</FollowValue>
           </FollowContentsBox>
-          <FollowContentsBox>
+          <FollowContentsBox onPress={goFollow}>
             <FollowText>팔로잉</FollowText>
-            <FollowValue>{data?.me?.totalFollowing}</FollowValue>
+            <FollowValue>{data?.seeProfile?.totalFollowing}</FollowValue>
           </FollowContentsBox>
         </FollowContainer>
       </UserProfileContainer>

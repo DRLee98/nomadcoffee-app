@@ -17,10 +17,15 @@ const ME_QUERY = gql`
       email
       name
       avatarURL
+      location
       totalFollowing
       totalFollowers
     }
   }
+`;
+
+const ButtonBox = styled.View`
+  width: 100%;
 `;
 
 const UserProfileContainer = styled.View``;
@@ -60,10 +65,12 @@ const FollowContainer = styled.View`
 const FollowText = styled.Text`
   text-align: center;
   font-weight: bold;
+  color: ${(props) => props.theme.fontColor};
 `;
 
 const FollowValue = styled.Text`
   text-align: center;
+  color: ${(props) => props.theme.fontColor};
 `;
 
 const FollowContentsBox = styled.TouchableOpacity`
@@ -87,7 +94,23 @@ const MyProfile: React.FC<MyProfileProps> = ({ navigation }) => {
   }, [data]);
 
   const editProfile = () => {
-    console.log("press");
+    if (data?.me) {
+      const meData = data.me;
+      navigation.navigate("EditProfile", {
+        id: meData.id,
+        username: meData.username,
+        email: meData.email,
+        name: meData.name,
+        ...(meData.location && { location: meData.location }),
+        ...(meData.avatarURL && { currentAvatar: meData.avatarURL }),
+      });
+    }
+  };
+
+  const goFollow = () => {
+    if (data?.me?.id) {
+      navigation.navigate("Follow", { id: data?.me?.id });
+    }
   };
 
   return (
@@ -102,17 +125,22 @@ const MyProfile: React.FC<MyProfileProps> = ({ navigation }) => {
           <Username>{data?.me?.username}</Username>
           <Name>{data?.me?.name}</Name>
           <Email>{data?.me?.email}</Email>
-          <Button onPress={editProfile} text={"프로필 수정하기"} />
-          <Button redBgColor={true} onPress={logout} text={"로그아웃"} />
+          <ButtonBox>
+            <Button onPress={editProfile} text={"프로필 수정하기"} />
+          </ButtonBox>
+          <ButtonBox style={{ marginTop: 5 }}>
+            <Button redBgColor={true} onPress={logout} text={"로그아웃"} />
+          </ButtonBox>
         </UserInfoBox>
         <FollowContainer>
           <FollowContentsBox
+            onPress={goFollow}
             style={{ borderRightWidth: 1, borderStyle: "solid" }}
           >
             <FollowText>팔로워</FollowText>
             <FollowValue>{data?.me?.totalFollowers}</FollowValue>
           </FollowContentsBox>
-          <FollowContentsBox>
+          <FollowContentsBox onPress={goFollow}>
             <FollowText>팔로잉</FollowText>
             <FollowValue>{data?.me?.totalFollowing}</FollowValue>
           </FollowContentsBox>
